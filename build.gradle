@@ -1,0 +1,52 @@
+buildscript {
+    ext {
+        springBootVersion = '2.3.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group 'realimpact'
+version '1.0-SNAPSHOT-' + new Date().format("yyyyMMddHHmmss")
+sourceCompatibility = 1.8
+
+ext {
+    mapstructVersion = "1.4.2.Final"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compileOnly("org.projectlombok:lombok")
+
+    testCompile("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('com.h2database:h2')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    implementation("org.mapstruct:mapstruct:${mapstructVersion}")
+    compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+}
+
+test {
+    useJUnitPlatform()
+}
