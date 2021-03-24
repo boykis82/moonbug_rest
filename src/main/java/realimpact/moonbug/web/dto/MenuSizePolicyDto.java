@@ -20,13 +20,15 @@ public class MenuSizePolicyDto {
     private int price;
     private double calories;
 
+    private MenuDto menu;
     private List<MenuIngredientDto> menuIngredients = new ArrayList<MenuIngredientDto>();
 
     @Builder
-    public MenuSizePolicyDto(MenuSize menuSize, int price, double calories, List<MenuIngredientDto> menuIngredients) {
+    public MenuSizePolicyDto(MenuSize menuSize, int price, double calories, MenuDto menu, List<MenuIngredientDto> menuIngredients) {
         this.menuSize = menuSize;
         this.price    = price;
         this.calories = calories;
+        this.menu = menu;
         this.menuIngredients = menuIngredients;
     }
 }

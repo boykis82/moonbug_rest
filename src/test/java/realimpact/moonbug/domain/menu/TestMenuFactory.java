@@ -1,6 +1,8 @@
 package realimpact.moonbug.domain.menu;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestMenuFactory {
 
@@ -11,21 +13,23 @@ public class TestMenuFactory {
                 .name("아메리카노")
                 .content("기본적인 커피 메뉴입니다.")
                 .startDate(LocalDate.now())
+                .expireDate(LocalDate.of(9999,12,31))
+                .menuCategory(MenuCategory.DRINK)
                 .build();
 
-        MenuSizePolicy tamsp = createMenuSizePolicy(MenuSize.TALL, 4600, 10.0);
+        MenuSizePolicy tamsp = createMenuSizePolicy(americano, MenuSize.TALL, 4600, 10.0);
         tamsp.addMenuIngredient(
                 MenuIngredient.builder()
                     .amountWithUnit("10g")
-                    .ingredientName("설탕").build());
+                    .ingredientName("설탕").menuSizePolicy(tamsp).build());
         tamsp.addMenuIngredient(
                 MenuIngredient.builder()
                     .amountWithUnit("0.5ml")
-                    .ingredientName("시럽").build());
+                    .ingredientName("시럽").menuSizePolicy(tamsp).build());
 
         americano.addMenuSizePolicy( tamsp );
-        americano.addMenuSizePolicy( createMenuSizePolicy(MenuSize.GRANDE, 5100, 20.0) );
-        americano.addMenuSizePolicy( createMenuSizePolicy(MenuSize.VENTI, 5600, 30.0) );
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.GRANDE, 5100, 20.0) );
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.VENTI, 5600, 30.0) );
 
         return americano;
     }
@@ -35,11 +39,13 @@ public class TestMenuFactory {
                 .name("2아메리카노2")
                 .content("기본적인 커피 메뉴2입니다.")
                 .startDate(LocalDate.now())
+                .expireDate(LocalDate.of(9999,12,31))
+                .menuCategory(MenuCategory.DRINK)
                 .build();
 
-        americano.addMenuSizePolicy( createMenuSizePolicy(MenuSize.TALL, 4600, 15) );
-        americano.addMenuSizePolicy( createMenuSizePolicy(MenuSize.GRANDE, 5100, 16) );
-        americano.addMenuSizePolicy( createMenuSizePolicy(MenuSize.VENTI, 5600, 17) );
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.TALL, 4600, 15) );
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.GRANDE, 5100, 16) );
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.VENTI, 5600, 17) );
 
         return americano;
     }
@@ -48,20 +54,78 @@ public class TestMenuFactory {
         Menu latte = Menu.builder().name("라떼")
                 .content("우유가 들어간 기본적인 커피 메뉴입니다.")
                 .startDate(LocalDate.now())
+                .expireDate(LocalDate.of(9999,12,31))
+                .menuCategory(MenuCategory.DRINK)
                 .build();
 
-        latte.addMenuSizePolicy( createMenuSizePolicy(MenuSize.SHORT, 4600, 200) );
-        latte.addMenuSizePolicy( createMenuSizePolicy(MenuSize.TALL, 5100, 300) );
-        latte.addMenuSizePolicy( createMenuSizePolicy(MenuSize.GRANDE, 5600, 400) );
+        latte.addMenuSizePolicy( createMenuSizePolicy(latte, MenuSize.SHORT, 4600, 200) );
+        latte.addMenuSizePolicy( createMenuSizePolicy(latte, MenuSize.TALL, 5100, 300) );
+        latte.addMenuSizePolicy( createMenuSizePolicy(latte, MenuSize.GRANDE, 5600, 400) );
 
         return latte;
     }
 
-    public static MenuSizePolicy createMenuSizePolicy(MenuSize menuSize, int price, double calories) {
+    private static String getRandomMenuName(int seed) {
+        switch(seed % 4) {
+            case 0: return "아메리카노" + String.valueOf(seed);
+            case 1: return "라떼" + String.valueOf(seed);
+            case 2: return "허니자몽블랙티" + String.valueOf(seed);
+            case 3: return "프라프치노" + String.valueOf(seed);
+        }
+        throw new RuntimeException("있을 수 없어.");
+    }
+
+    private static LocalDate getRandomExpireDate(int seed) {
+        switch(seed % 4) {
+            case 0: return LocalDate.of(9999, 12, 31);
+            case 1: return LocalDate.of(2021, 6, 1);
+            case 2: return LocalDate.of(2020, 12, 1);
+            case 3: return LocalDate.now();
+        }
+        throw new RuntimeException("있을 수 없어.");
+    }
+
+    private static LocalDate getRandomStartDate(int seed) {
+        switch(seed % 4) {
+            case 0: return LocalDate.now();
+            case 1: return LocalDate.of(2020, 6, 1);
+            case 2: return LocalDate.of(2019, 12, 1);
+            case 3: return LocalDate.of(2019, 1, 1);
+        }
+        throw new RuntimeException("있을 수 없어.");
+    }
+
+    private static MenuCategory getRandomMenuCategory(int seed) {
+        switch(seed % 3) {
+            case 0: return MenuCategory.DRINK;
+            case 1: return MenuCategory.FOOD;
+            case 2: return MenuCategory.PROD;
+        }
+        throw new RuntimeException("있을 수 없어.");
+    }
+
+    public static List<Menu> createManyMenu(int count) {
+        ArrayList<Menu> menus = new ArrayList<Menu>();
+
+        for( int i = 0 ; i < count ; ++i ) {
+            menus.add( Menu.builder()
+                        .name( getRandomMenuName(i) )
+                        .content("...")
+                        .startDate( getRandomStartDate(i) )
+                        .expireDate( getRandomExpireDate(i) )
+                        .menuCategory( getRandomMenuCategory(i) )
+                        .build() );
+        }
+
+        return menus;
+    }
+
+    public static MenuSizePolicy createMenuSizePolicy(Menu menu, MenuSize menuSize, int price, double calories) {
         return MenuSizePolicy.builder()
                 .menuSize(menuSize)
                 .price(price)
                 .calories(calories)
+                .menu(menu)
                 .build();
     }
 }

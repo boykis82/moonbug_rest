@@ -3,16 +3,15 @@ package realimpact.moonbug.domain.menu;
 import lombok.Getter;
 
 @Getter
-public enum MenuSize {
+public enum MenuCategory {
     NONE("없음"),
-    SHORT("Short"),
-    TALL("Tall"),
-    GRANDE("Grande"),
-    VENTI("Venti");
+    DRINK("음료"),
+    FOOD("푸드"),
+    PROD("상품");
 
     private final String name;
 
-    private MenuSize(String name) {
+    private MenuCategory(String name) {
         this.name = name;
     }
 }

@@ -1,5 +1,6 @@
 package realimpact.moonbug.domain.menu;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,9 +24,17 @@ public class MenuIngredient extends BaseEntity {
     @Column(length = 10, nullable = false)
     private String amountWithUnit;
 
+    @ManyToOne
+    @JoinColumn(name = "menu_size_policy_id")
+    @JsonIgnore
+    private MenuSizePolicy menuSizePolicy;
+
     @Builder
-    public MenuIngredient(String ingredientName, String amountWithUnit) {
+    public MenuIngredient(String ingredientName,
+                          String amountWithUnit,
+                          MenuSizePolicy menuSizePolicy) {
         this.ingredientName = ingredientName;
         this.amountWithUnit = amountWithUnit;
+        this.menuSizePolicy = menuSizePolicy;
     }
 }

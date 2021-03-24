@@ -8,11 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -38,6 +38,8 @@ public class MenuRepositoryTest {
         assertTrue(compareMenu(latte, insertedLatte));
 
         assertThat(insertedLatte.getMenuSizePolicies().size()).isEqualTo(3);
+
+        assertEquals(insertedLatte.getId(), insertedLatte.getMenuSizePolicies().get(0).getMenu().getId());
     }
 
     @Test
@@ -127,10 +129,28 @@ public class MenuRepositoryTest {
         assertThat(menuRepository.findByNameContaining("라떼").size()).isEqualTo(1);
     }
 
+    @Test
+    @Transactional
+    public void testExpireMenu() {
+        Menu americano = TestMenuFactory.createAmericano();
+        menuRepository.save(americano);
+
+        Menu insertedAmericano = menuRepository.findByName("아메리카노").get();
+        insertedAmericano.expire(LocalDate.now());
+        menuRepository.save(insertedAmericano);
+
+        Menu updatedAmericano = menuRepository.findByName("아메리카노").get();
+
+        assertThat(LocalDate.now()).isEqualTo(updatedAmericano.getExpireDate());
+
+    }
+
 
     private boolean compareMenu(Menu menu1, Menu menu2) {
         return  menu1.getName().equals(menu2.getName()) &&
                 menu1.getMenuSizePolicies().size() == menu2.getMenuSizePolicies().size() &&
-                menu1.getStartDate().equals(menu2.getStartDate());
+                menu1.getStartDate().equals(menu2.getStartDate()) &&
+                menu1.getExpireDate().equals(menu2.getExpireDate()) &&
+                menu1.getMenuCategory().equals(menu2.getMenuCategory());
     }
 }

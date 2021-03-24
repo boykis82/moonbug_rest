@@ -1,6 +1,7 @@
 buildscript {
     ext {
         springBootVersion = '2.3.2.RELEASE'
+        queryDslVersion = "4.4.0"
     }
     repositories {
         mavenCentral()
@@ -12,7 +13,6 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -31,15 +31,30 @@ repositories {
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
-    compileOnly("org.projectlombok:lombok")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 
-    testCompile("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
+    // java.lang.NoClassDefFoundError: javax/annotation/Generated 해소
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    annotationProcessor("javax.annotation:javax.annotation-api:1.3.2")
+
+    
+
+    // jpa용
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('com.h2database:h2')
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    // lombok
+    compileOnly("org.projectlombok:lombok")
+    testCompile("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 
+    // QueryDSL
+    implementation ("com.querydsl:querydsl-jpa:${queryDslVersion}")
+    annotationProcessor ("com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+    testImplementation ("com.querydsl:querydsl-jpa:${queryDslVersion}")
+    testAnnotationProcessor ("com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+
+    // mapstruct
     implementation("org.mapstruct:mapstruct:${mapstructVersion}")
     compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"

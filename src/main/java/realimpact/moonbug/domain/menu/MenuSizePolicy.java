@@ -1,5 +1,6 @@
 package realimpact.moonbug.domain.menu;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,15 +31,20 @@ public class MenuSizePolicy extends BaseEntity {
     @Column
     private double calories;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_size_policy_id")
+    @ManyToOne
+    @JoinColumn(name = "menu_id") // MenuSizePolicy에 FK로 menu_id 생김
+    @JsonIgnore
+    private Menu menu;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "menuSizePolicy")
     private List<MenuIngredient> menuIngredients = new ArrayList<MenuIngredient>();
 
     @Builder
-    public MenuSizePolicy(MenuSize menuSize, int price, double calories) {
+    public MenuSizePolicy(MenuSize menuSize, int price, double calories, Menu menu) {
         this.menuSize = menuSize;
         this.price    = price;
         this.calories = calories;
+        this.menu = menu;
     }
 
     public void addMenuIngredient(MenuIngredient menuIngredient) {

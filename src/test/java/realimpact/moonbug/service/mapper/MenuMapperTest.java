@@ -15,6 +15,8 @@ import realimpact.moonbug.web.dto.MenuSizePolicyDto;
 
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -35,6 +37,8 @@ public class MenuMapperTest {
         MenuDto dto = mapper.entityToDto(entity);
 
         assertTrue( compareMenu(entity, dto) );
+        assertNotNull( entity.getMenuSizePolicies().get(0).getMenu() );
+        assertNull( dto.getMenuSizePolicies().get(0).getMenu() );
     }
 
     @Test
@@ -43,6 +47,8 @@ public class MenuMapperTest {
         Menu entity = mapper.dtoToEntity(dto);
 
         assertTrue( compareMenu(entity, dto) );
+        assertNull( dto.getMenuSizePolicies().get(0).getMenu() );
+        assertNotNull( entity.getMenuSizePolicies().get(0).getMenu() );
     }
 
     private boolean compareMenu(Menu entity, MenuDto dto) {
@@ -77,6 +83,8 @@ public class MenuMapperTest {
              entity.getMenuSize() != dto.getMenuSize() ||
              entity.getMenuIngredients().size() != dto.getMenuIngredients().size() )
             return false;
+
+        if ( entity.getMenu() == null || dto.getMenu() == null )
 
         if ( !compareMenuIngredients(entity.getMenuIngredients(), dto.getMenuIngredients()) )
             return false;
