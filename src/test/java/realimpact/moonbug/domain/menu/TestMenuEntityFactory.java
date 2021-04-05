@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestMenuFactory {
+public class TestMenuEntityFactory {
 
-    private TestMenuFactory() {}
+    private TestMenuEntityFactory() {}
 
     public static Menu createAmericano() {
         Menu americano = Menu.builder()
@@ -16,6 +16,9 @@ public class TestMenuFactory {
                 .expireDate(LocalDate.of(9999,12,31))
                 .menuCategory(MenuCategory.DRINK)
                 .build();
+
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.GRANDE, 5100, 20.0) );
+        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.VENTI, 5600, 30.0) );
 
         MenuSizePolicy tamsp = createMenuSizePolicy(americano, MenuSize.TALL, 4600, 10.0);
         tamsp.addMenuIngredient(
@@ -28,8 +31,6 @@ public class TestMenuFactory {
                     .ingredientName("시럽").menuSizePolicy(tamsp).build());
 
         americano.addMenuSizePolicy( tamsp );
-        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.GRANDE, 5100, 20.0) );
-        americano.addMenuSizePolicy( createMenuSizePolicy(americano, MenuSize.VENTI, 5600, 30.0) );
 
         return americano;
     }
@@ -63,6 +64,22 @@ public class TestMenuFactory {
         latte.addMenuSizePolicy( createMenuSizePolicy(latte, MenuSize.GRANDE, 5600, 400) );
 
         return latte;
+    }
+
+    public static Menu createMocha() {
+        Menu mocha = Menu.builder().name("모카")
+                .content("초카가 들어간 기본적인 커피 메뉴입니다.")
+                .startDate(LocalDate.now())
+                .expireDate(LocalDate.of(9999,12,31))
+                .menuCategory(MenuCategory.DRINK)
+                .build();
+
+        mocha.addMenuSizePolicy( createMenuSizePolicy(mocha, MenuSize.TALL, 5600, 200) );
+        mocha.addMenuSizePolicy( createMenuSizePolicy(mocha, MenuSize.VENTI, 6600, 400) );
+        mocha.addMenuSizePolicy( createMenuSizePolicy(mocha, MenuSize.GRANDE, 6100, 300) );
+        mocha.addMenuSizePolicy( createMenuSizePolicy(mocha, MenuSize.SHORT, 5100, 100) );
+
+        return mocha;
     }
 
     private static String getRandomMenuName(int seed) {
@@ -108,13 +125,27 @@ public class TestMenuFactory {
         ArrayList<Menu> menus = new ArrayList<Menu>();
 
         for( int i = 0 ; i < count ; ++i ) {
-            menus.add( Menu.builder()
-                        .name( getRandomMenuName(i) )
-                        .content("...")
-                        .startDate( getRandomStartDate(i) )
-                        .expireDate( getRandomExpireDate(i) )
-                        .menuCategory( getRandomMenuCategory(i) )
-                        .build() );
+            Menu menu = Menu.builder()
+                    .name( getRandomMenuName(i) )
+                    .content("...")
+                    .startDate( getRandomStartDate(i) )
+                    .expireDate( getRandomExpireDate(i) )
+                    .menuCategory( getRandomMenuCategory(i) )
+                    .build();
+
+            menu.addMenuSizePolicy(MenuSizePolicy.builder()
+                    .menuSize(MenuSize.TALL)
+                    .calories(100)
+                    .price(4600)
+                    .build());
+
+            menu.addMenuSizePolicy(MenuSizePolicy.builder()
+                    .menuSize(MenuSize.GRANDE)
+                    .calories(120)
+                    .price(5100)
+                    .build());
+
+            menus.add(menu);
         }
 
         return menus;

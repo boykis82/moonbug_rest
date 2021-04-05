@@ -4,38 +4,41 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import realimpact.moonbug.domain.menu.MenuCategory;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class MenuDto {
+public class MenuListResponseDto {
+    private int id;
     private String name;
     private String content;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate expireDate;
+
     private MenuCategory menuCategory;
-    private List<MenuSizePolicyDto> menuSizePolicies = new ArrayList<MenuSizePolicyDto>();
 
     @Builder
-    public MenuDto(String name,
-                              String content,
-                              LocalDate startDate,
-                              LocalDate expireDate,
-                              MenuCategory menuCategory,
-                              List<MenuSizePolicyDto> menuSizePolicies) {
+    public MenuListResponseDto(int id,
+                               String name,
+                               String content,
+                               LocalDate startDate,
+                               LocalDate expireDate,
+                               MenuCategory menuCategory) {
+        this.id = id;
         this.name = name;
         this.content = content;
         this.startDate = startDate;
         this.expireDate = expireDate;
         this.menuCategory = menuCategory;
-        this.menuSizePolicies = menuSizePolicies;
     }
-
 }

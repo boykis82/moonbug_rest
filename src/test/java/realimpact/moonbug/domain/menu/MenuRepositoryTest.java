@@ -1,9 +1,11 @@
 package realimpact.moonbug.domain.menu;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +17,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@DataJpaTest
 public class MenuRepositoryTest {
     @Autowired
     MenuRepository menuRepository;
+
+    @Before
+    public void setUp() {
+        Menu mocha = TestMenuEntityFactory.createMocha();
+        menuRepository.save(mocha);
+    }
 
     @After
     public void tearDown() {
@@ -26,26 +34,23 @@ public class MenuRepositoryTest {
     }
 
     @Test
-    @Transactional  // lazy loading 시 그 전에 영속성이 끝나버리기 때문에
+    //@Transactional  // lazy loading 시 그 전에 영속성이 끝나버리기 때문에
     public void testInsertMenuOnly() {
-        Menu latte = TestMenuFactory.createLatte();
+        Menu latte = TestMenuEntityFactory.createLatte();
         menuRepository.save(latte);
 
         List<Menu> menuList = menuRepository.findAll();
-        assertThat(menuList.size()).isEqualTo(1);
+        assertThat(menuList.size()).isEqualTo(2);
 
-        Menu insertedLatte = menuRepository.findById(menuList.get(0).getId()).get();
+        Menu insertedLatte = menuList.get(1);
         assertTrue(compareMenu(latte, insertedLatte));
 
         assertThat(insertedLatte.getMenuSizePolicies().size()).isEqualTo(3);
-
-        assertEquals(insertedLatte.getId(), insertedLatte.getMenuSizePolicies().get(0).getMenu().getId());
     }
 
     @Test
-    @Transactional
     public void testMenuSizePolicy() {
-        Menu americano = TestMenuFactory.createAmericano();
+        Menu americano = TestMenuEntityFactory.createAmericano();
         menuRepository.save(americano);
 
         Menu insertedAmericano = menuRepository.findByName("아메리카노").get();
@@ -61,10 +66,9 @@ public class MenuRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testInsertMenuTwice() {
-        Menu americano = TestMenuFactory.createAmericano();
-        Menu latte = TestMenuFactory.createLatte();
+        Menu americano = TestMenuEntityFactory.createAmericano();
+        Menu latte = TestMenuEntityFactory.createLatte();
 
         List<Menu> menus = new ArrayList<Menu>();
         menus.add(americano);
@@ -73,19 +77,18 @@ public class MenuRepositoryTest {
         menuRepository.saveAll(menus);
 
         List<Menu> menuList = menuRepository.findAll();
-        assertThat(menuList.size()).isEqualTo(2);
+        assertThat(menuList.size()).isEqualTo(3);
 
-        Menu insertedAmericano = menuList.get(0);
+        Menu insertedAmericano = menuList.get(1);
         assertTrue(compareMenu(americano, insertedAmericano));
 
-        Menu insertedLatte = menuList.get(1);
+        Menu insertedLatte = menuList.get(2);
         assertTrue(compareMenu(latte, insertedLatte));
     }
 
     @Test
-    @Transactional
     public void testFindByName() {
-        Menu americano = TestMenuFactory.createAmericano();
+        Menu americano = TestMenuEntityFactory.createAmericano();
         menuRepository.save(americano);
 
         Optional<Menu> insertedAmericano = menuRepository.findByName("아메리카노");
@@ -93,9 +96,8 @@ public class MenuRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testGetIngredients() {
-        Menu americano = TestMenuFactory.createAmericano();
+        Menu americano = TestMenuEntityFactory.createAmericano();
         menuRepository.save(americano);
 
         Menu insertedAmericano = menuRepository.findByName("아메리카노").get();
@@ -112,11 +114,10 @@ public class MenuRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testFindByNameLike() {
-        Menu americano = TestMenuFactory.createAmericano();
-        Menu americano2 = TestMenuFactory.createAmericano2();
-        Menu latte = TestMenuFactory.createLatte();
+        Menu americano = TestMenuEntityFactory.createAmericano();
+        Menu americano2 = TestMenuEntityFactory.createAmericano2();
+        Menu latte = TestMenuEntityFactory.createLatte();
 
         List<Menu> menus = new ArrayList<Menu>();
         menus.add(americano);
@@ -130,9 +131,8 @@ public class MenuRepositoryTest {
     }
 
     @Test
-    @Transactional
     public void testExpireMenu() {
-        Menu americano = TestMenuFactory.createAmericano();
+        Menu americano = TestMenuEntityFactory.createAmericano();
         menuRepository.save(americano);
 
         Menu insertedAmericano = menuRepository.findByName("아메리카노").get();
@@ -144,7 +144,6 @@ public class MenuRepositoryTest {
         assertThat(LocalDate.now()).isEqualTo(updatedAmericano.getExpireDate());
 
     }
-
 
     private boolean compareMenu(Menu menu1, Menu menu2) {
         return  menu1.getName().equals(menu2.getName()) &&

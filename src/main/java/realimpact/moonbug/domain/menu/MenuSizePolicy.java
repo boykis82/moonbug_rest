@@ -31,12 +31,13 @@ public class MenuSizePolicy extends BaseEntity {
     @Column
     private double calories;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id") // MenuSizePolicy에 FK로 menu_id 생김
     @JsonIgnore
     private Menu menu;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "menuSizePolicy")
+    @OrderBy("id")
     private List<MenuIngredient> menuIngredients = new ArrayList<MenuIngredient>();
 
     @Builder

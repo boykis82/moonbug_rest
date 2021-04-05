@@ -3,6 +3,7 @@ package realimpact.moonbug.domain.menu;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import realimpact.moonbug.domain.BaseEntity;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "menu_ingredient")
 public class MenuIngredient extends BaseEntity {
     @Id
@@ -24,7 +26,7 @@ public class MenuIngredient extends BaseEntity {
     @Column(length = 10, nullable = false)
     private String amountWithUnit;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_size_policy_id")
     @JsonIgnore
     private MenuSizePolicy menuSizePolicy;
@@ -37,4 +39,5 @@ public class MenuIngredient extends BaseEntity {
         this.amountWithUnit = amountWithUnit;
         this.menuSizePolicy = menuSizePolicy;
     }
+
 }

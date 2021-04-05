@@ -19,7 +19,6 @@ import realimpact.moonbug.domain.BaseEntity;
 @Table(name = "menu")
 public class Menu extends BaseEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -59,6 +58,7 @@ public class Menu extends BaseEntity {
 
     public void addMenuSizePolicy(MenuSizePolicy menuSizePolicy) {
         this.menuSizePolicies.add(menuSizePolicy);
+        menuSizePolicy.setMenu(this);
     }
 
     public Optional<MenuSizePolicy> getMenuSizePolicy(MenuSize menuSize) {

@@ -2,7 +2,10 @@ package realimpact.moonbug.domain.menu;
 
 import static com.querydsl.core.types.ExpressionUtils.and;
 import static realimpact.moonbug.domain.menu.QMenu.menu;
+import static realimpact.moonbug.domain.menu.QMenuSizePolicy.menuSizePolicy;
+import static realimpact.moonbug.domain.menu.QMenuIngredient.menuIngredient;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,38 +15,51 @@ import realimpact.moonbug.exception.InvalidInputException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class MenuRepositorySupport {
     private final JPAQueryFactory queryFactory;
 
-    public List<Menu> findBy(String name,
-                             boolean findAllCategory,
+    public List<Menu> findBy(int offset,
+                             int limit,
+                             String name,
                              MenuCategory menuCategory,
                              boolean includeFutureMenu,
                              boolean includeExpiredMenu) {
-
-        if( !findAllCategory && menuCategory == MenuCategory.NONE )
-            throw new InvalidInputException("일부 카테고리 조회인데 카테고리 지정안되어 있음!");
-
-        return queryFactory.selectFrom(menu)
+        QueryResults<Menu> result = queryFactory.selectFrom(menu)
                 .where( nameCondition(name),
-                        categoryCondition(findAllCategory, menuCategory),
+                        categoryCondition(menuCategory),
                         startDateCondition(includeFutureMenu, LocalDate.now()),
                         expireDateCondition(includeExpiredMenu, LocalDate.now()))
-                .orderBy( menu.menuCategory.desc(), menu.name.asc() )
-                .fetch();
+                .leftJoin(menu.menuSizePolicies, menuSizePolicy)
+                .fetchJoin()
+                .offset(offset)
+                .limit(limit)
+                .orderBy( menu.menuCategory.asc(), menu.name.asc() )
+                .fetchResults();
+
+        return result.getResults();
+    }
+
+    public Menu getMenuWithSizePolicy(int menuId) {
+        return queryFactory.selectFrom(menu)
+                .leftJoin(menu.menuSizePolicies, menuSizePolicy)
+                .fetchJoin()
+                .where(menu.id.eq(menuId))
+                .orderBy(menuSizePolicy.menuSize.asc())
+                .fetchOne();
     }
 
     private BooleanExpression nameCondition(String name) {
-        if (name.length() == 0)
+        if (name == null || name.length() == 0)
             return null;
         return menu.name.contains(name);
     }
 
-    private BooleanExpression categoryCondition(boolean findAllCategory, MenuCategory menuCategory) {
-        if( findAllCategory )
+    private BooleanExpression categoryCondition(MenuCategory menuCategory) {
+        if( menuCategory == null )
             return null;
         return menu.menuCategory.eq(menuCategory);
     }
